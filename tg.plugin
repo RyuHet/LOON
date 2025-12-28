@@ -1,26 +1,14 @@
-#!name=Telegram 直连跳转
-#!desc=点击 t.me 链接时直接唤起 Telegram App，跳过网页加载。支持个人/频道、加群(joinchat)及贴纸(addstickers)链接。
+#!name=Telegram 多客户端跳转
+#!desc=支持选择第三方客户端跳转 (Turrit, Swiftgram等)。
 #!author=Roger
 #!icon=paperplane.fill
-#!date=2025-12-28
+#!select=跳转客户端, Telegram, Swiftgram, Turrit, iMe, Nicegram
 
-https://ahrefs.com/writing-tools/paragraph-rewriter
-# 1. 进群链接 (joinchat)
-# 匹配: t.me/joinchat/ABCDE -> tg://join?invite=ABCDE
-^https?:\/\/(?:www\.)?(?:t|telegram)\.(?:me|dog)\/joinchat\/(.+) tg://join?invite=$1 302
+[Argument]
+跳转客户端 = select, "Telegram", "Swiftgram", "Turrit", "iMe", "Nicegram", "Liao"
 
-# 2. 贴纸链接 (addstickers)
-# 匹配: t.me/addstickers/PackName -> tg://addstickers?set=PackName
-^https?:\/\/(?:www\.)?(?:t|telegram)\.(?:me|dog)\/addstickers\/(.+) tg://addstickers?set=$1 302
-
-# 3. 代理链接 (proxy)
-# 匹配: t.me/proxy?server=... -> tg://proxy?server=...
-^https?:\/\/(?:www\.)?(?:t|telegram)\.(?:me|dog)\/proxy\?(.*) tg://proxy?$1 302
-
-# 4. 个人/频道/机器人链接 (普通 username)
-# 匹配: t.me/username -> tg://resolve?domain=username
-# 排除 joinchat, addstickers, proxy 以及网页图标 favicon
-^https?:\/\/(?:www\.)?(?:t|telegram)\.(?:me|dog)\/(?!(?:joinchat|addstickers|proxy|favicon\.ico))(.+) tg://resolve?domain=$1 302
+[Script]
+http-request ^https?:\/\/(www\.)?(t|telegram)\.(me|dog)\/ script-path=https://cdn.jsdelivr.net/gh/RyderHee/LOON@main/tg.js, timeout=10, tag=Telegram跳转
 
 [MitM]
 hostname = t.me, telegram.me, telegram.dog
