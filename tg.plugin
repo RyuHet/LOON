@@ -1,23 +1,16 @@
-#!name=Telegram
-#!desc=Roger 独家定制，支持 Turrit 等多客户端唤醒
+#!name=TG Universal
+#!desc=多客户端跳转
 #!author=Roger
-#!icon=bolt.fill
 #!date=2025-12-30
 
 [Argument]
-# 这里的参数名我改成了简单的 "app"，和代码对应
-app = select, "Turrit", "Swiftgram", "Telegram", "iMe", "Nicegram"
+App = select, "Turrit", "Swiftgram", "iMe", "Nicegram", "Telegram"
 
 [Rule]
-# 必须的拦截规则
 DOMAIN-SUFFIX, t.me, PROXY
-DOMAIN-SUFFIX, turrit.me, PROXY
 
 [MitM]
-# 核心解密域名
 hostname = t.me
 
 [Script]
-# 脚本重命名为 "TG_Redirect"
-# 使用 http-request (比 response 更快，拦截更早)
-http-request ^https?:\/\/(www\.)?t\.me\/ script-path=https://cdn.jsdelivr.net/gh/RyderHee/LOON@main/tg.js, timeout=10, tag=TG_Redirect, argument="{app}"
+http-request ^https?:\/\/(www\.)?t\.me\/ script-path=https://raw.githubusercontent.com/RyderHee/LOON/main/tg.js, timeout=10, tag=TGJump, argument="{App}"
