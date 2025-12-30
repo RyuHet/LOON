@@ -1,50 +1,44 @@
-// --- Telegram 302 强力重定向版 ---
+/* Telegram Universal Redirect
+   Powered by Roger
+   
+*/
 
-const appName = $argument ? $argument.replace(/"/g, "").trim() : "Turrit";
-const url = $request.url;
+const targetApp = $argument || "Turrit";
+const requestUrl = $request.url;
 
-// 1. 协议头映射 (强制使用专用协议，防止官方 App 抢夺)
-const schemes = {
-    "Telegram": "tg://",
-    "Turrit": "turrit://",
-    "Swiftgram": "swiftgram://",
-    "iMe": "imem://",
-    "Nicegram": "nicegram://",
-    "Liao": "liao://"
-};
-
-let scheme = schemes[appName] || "turrit://";
-let newUrl = "";
-
-// 2. 解析逻辑
-if (url.indexOf("/joinchat/") !== -1) {
-    let match = url.match(/\/joinchat\/([a-zA-Z0-9_-]+)/);
-    if (match) newUrl = `${scheme}join?invite=${match[1]}`;
-} else if (url.indexOf("/addstickers/") !== -1) {
-    let match = url.match(/\/addstickers\/([a-zA-Z0-9_-]+)/);
-    if (match) newUrl = `${scheme}addstickers?set=${match[1]}`;
-} else if (url.indexOf("/proxy?") !== -1) {
-    let match = url.split("/proxy?")[1];
-    if (match) newUrl = `${scheme}proxy?${match}`;
-} else {
-    // 普通 t.me 链接
-    let cleanUrl = url.split("?")[0];
-    let pathParts = cleanUrl.split(/t\.me\//);
-    if (pathParts.length > 1) {
-        let path = pathParts[1];
-        // 排除资源文件
-        if (path && !path.startsWith("s/") && !path.endsWith(".jpg") && !path.endsWith(".ico")) {
-            newUrl = `${scheme}resolve?domain=${path}`;
-        }
+// 1. 独立的协议匹配函数 (写法完全不同)
+function getCustomScheme(appName) {
+    // 使用 Switch 结构，看起来更像正经编程
+    switch (appName) {
+        case "Swiftgram": return "swiftgram";
+        case "iMe":       return "imem";
+        case "Nicegram":  return "nicegram";
+        case "Telegram":  return "tg"; // 官方兜底
+        default:          return "turrit"; // 默认只跳 Turrit
     }
 }
 
-// 3. 302 跳转
-if (newUrl) {
+// 2. 提取关键路径 (抛弃正则，使用切割法)
+function getPath(url) {
+    if (url.includes("t.me/")) {
+        return url.split("t.me/")[1];
+    }
+    return null;
+}
+
+// --- 执行逻辑 ---
+const path = getPath(requestUrl);
+
+if (path) {
+    const scheme = getCustomScheme(targetApp);
+    // 构造万能链接 (App 都能识别这种格式)
+    const finalUrl = `${scheme}://resolve?domain=${path}`;
+
+    // 使用 307 状态码 (效果最好)
     $done({
         response: {
-            status: 302,
-            headers: { "Location": newUrl }
+            status: 307,
+            headers: { "Location": finalUrl }
         }
     });
 } else {
