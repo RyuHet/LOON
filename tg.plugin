@@ -1,11 +1,11 @@
-#!name=Telegram
-#!desc=Advanced Redirect Strategy
+#!name=TG Pro Redirect
+#!desc=Multi-Client Response Rewrite
 #!author=Roger
 #!icon=https://raw.githubusercontent.com/Orz-3/mini/master/Color/Telegram.png
 #!date=2025-12-30
 
 [Argument]
-TG_CLIENT = select, "Turrit", "Swiftgram", "iMe", "Nicegram", "Telegram"
+TARGET_APP = select, "Turrit", "Swiftgram", "iMe", "Nicegram", "Telegram"
 
 [Rule]
 DOMAIN-SUFFIX, t.me, PROXY
@@ -22,4 +22,5 @@ DOMAIN-SUFFIX, nicegram.cloud, PROXY
 hostname = t.me
 
 [Script]
-http-request ^https?:\/\/(www\.)?t\.me\/ script-path=https://raw.githubusercontent.com/RyderHee/LOON/main/tg.js, timeout=10, tag=TG_Strategy, argument="{TG_CLIENT}"
+# http-response 确保每次刷新都重新计算跳转目标
+http-response ^https?:\/\/(www\.)?t\.me\/ script-path=https://raw.githubusercontent.com/RyderHee/LOON/main/tg.js, requires-body=true, timeout=10, tag=TG_Resp_Switch, argument="{TARGET_APP}"
