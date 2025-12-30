@@ -1,28 +1,24 @@
-// --- Telegram 302 强力重定向版 ---
-// 专治安装了官方客户端后无法跳转的问题
-
+// 1. 获取 Loon 插件设置的参数
 let appName = "Turrit"; // 默认值
 if (typeof $argument !== "undefined" && $argument) {
     appName = $argument.replace(/"/g, "").trim();
 }
 
-// 1. 强制使用第三方独有的协议头
-// 只要不用 tg://，官方 App 就抢不走！
+// 2. 协议头映射 (核心修改：使用 App 独有协议，避开 tg://)
 const schemes = {
-    "Telegram": "tg://", // 只有选 Telegram 时才用通用协议
-    "Turrit": "turrit://",
-    "Swiftgram": "swiftgram://",
-    "iMe": "imem://",
-    "Nicegram": "nicegram://",
-    "Liao": "liao://"
+    "Telegram": "tg://",         // 只有选官方时才用这个
+    "Turrit": "turrit://",       // Turrit 专用
+    "Swiftgram": "swiftgram://", // Swiftgram 专用
+    "iMe": "imem://",            // iMe 专用
+    "Nicegram": "nicegram://",   // Nicegram 专用
+    "Liao": "liao://"            // Liao 专用
 };
 
 let targetScheme = schemes[appName] || "turrit://";
 const url = $request.url;
 let newPath = "";
 
-// 2. 解析链接
-// 无论链接带什么参数，我们只取核心部分
+// 3. 解析路径
 if (url.indexOf("/joinchat/") !== -1) {
     let match = url.match(/\/joinchat\/([a-zA-Z0-9_-]+)/);
     if (match) newPath = `join?invite=${match[1]}`;
@@ -35,20 +31,21 @@ if (url.indexOf("/joinchat/") !== -1) {
     let pathParts = cleanUrl.split(/t\.me\//);
     if (pathParts.length > 1) {
         let path = pathParts[1];
+        // 排除资源文件
         if (path && !path.startsWith("s/") && !path.endsWith(".jpg") && !path.endsWith(".ico")) {
             newPath = `resolve?domain=${path}`;
         }
     }
 }
 
-// 3. 核心：返回 302 重定向，而不是 HTML
+// 4. 执行 302 重定向
 if (newPath) {
     const finalUrl = `${targetScheme}${newPath}`;
-    console.log(`🚀 正在将 ${url} 重定向到 ${finalUrl}`);
+    console.log(`[TG跳转] 目标: ${finalUrl}`);
     
     $done({
         response: {
-            status: 302, // 302 状态码：浏览器会立即执行跳转，不给官方 App 反应时间
+            status: 302,
             headers: { "Location": finalUrl }
         }
     });
