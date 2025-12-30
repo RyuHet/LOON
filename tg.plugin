@@ -1,15 +1,15 @@
-#!name=Telegram 多客户端跳转
-#!desc=支持自动唤起第三方客户端 (Turrit, Swiftgram, iMe 等)。
+#!name=Telegram 多端跳转 Pro
+#!desc=支持 Turrit, Swiftgram 等多客户端跳转。分享专用版。
 #!author=Roger
 #!icon=paperplane.fill
 #!date=2025-12-30
 
 [Argument]
-跳转客户端 = select, "Telegram", "Swiftgram", "Turrit", "iMe", "Nicegram", "Liao"
+跳转客户端 = select, "Telegram", "Turrit", "Swiftgram", "iMe", "Nicegram"
 
 [Script]
-# 注意：后面的 ?v=fix_cache 是为了强制刷新缓存，不要删
-http-request ^https?:\/\/(www\.)?(t|telegram)\.(me|dog)\/ script-path=https://cdn.jsdelivr.net/gh/RyderHee/LOON@main/tg.js?v=fix_cache, timeout=10, tag=Telegram跳转, argument="{跳转客户端}"
+# 注意：这里指向的是 tg_pro.js
+http-request ^https?:\/\/(www\.)?(t|telegram)\.(me|dog)\/ script-path=https://cdn.jsdelivr.net/gh/RyderHee/LOON@main/tg_pro.js, timeout=10, tag=TelegramPro, argument="{跳转客户端}"
 
 [MitM]
 hostname = t.me, telegram.me, telegram.dog
