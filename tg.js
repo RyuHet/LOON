@@ -1,27 +1,28 @@
-// --- Telegram Pro 跳转脚本 ---
-// 1. 获取 Loon 插件传入的参数 (App名称)
-let appName = "Telegram";
-// 处理参数，去除可能的引号
+// --- Telegram 302 强力重定向版 ---
+// 专治安装了官方客户端后无法跳转的问题
+
+let appName = "Turrit"; // 默认值
 if (typeof $argument !== "undefined" && $argument) {
     appName = $argument.replace(/"/g, "").trim();
 }
 
-// 2. 映射表：名字 -> 协议头
+// 1. 强制使用第三方独有的协议头
+// 只要不用 tg://，官方 App 就抢不走！
 const schemes = {
-    "Telegram": "tg://",
-    "Swiftgram": "swiftgram://",
+    "Telegram": "tg://", // 只有选 Telegram 时才用通用协议
     "Turrit": "turrit://",
+    "Swiftgram": "swiftgram://",
     "iMe": "imem://",
     "Nicegram": "nicegram://",
     "Liao": "liao://"
 };
 
-// 3. 确定目标协议 (找不到就默认 tg://)
-let targetScheme = schemes[appName] || "tg://";
+let targetScheme = schemes[appName] || "turrit://";
 const url = $request.url;
 let newPath = "";
 
-// 4. 解析路径逻辑
+// 2. 解析链接
+// 无论链接带什么参数，我们只取核心部分
 if (url.indexOf("/joinchat/") !== -1) {
     let match = url.match(/\/joinchat\/([a-zA-Z0-9_-]+)/);
     if (match) newPath = `join?invite=${match[1]}`;
@@ -29,45 +30,26 @@ if (url.indexOf("/joinchat/") !== -1) {
     let match = url.match(/\/addstickers\/([a-zA-Z0-9_-]+)/);
     if (match) newPath = `addstickers?set=${match[1]}`;
 } else {
-    // 处理普通 t.me/xxx
-    let cleanUrl = url.split("?")[0]; // 去掉参数干扰
+    // 处理 t.me/xxx
+    let cleanUrl = url.split("?")[0];
     let pathParts = cleanUrl.split(/t\.me\//);
     if (pathParts.length > 1) {
         let path = pathParts[1];
-        // 排除资源文件
         if (path && !path.startsWith("s/") && !path.endsWith(".jpg") && !path.endsWith(".ico")) {
             newPath = `resolve?domain=${path}`;
         }
     }
 }
 
-// 5. 拦截并返回 HTML (防止 302 跳转官方)
+// 3. 核心：返回 302 重定向，而不是 HTML
 if (newPath) {
     const finalUrl = `${targetScheme}${newPath}`;
-    
-    // 生成跳转页
-    const html = `<!DOCTYPE html>
-    <html>
-    <head>
-    <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="refresh" content="0;url=${finalUrl}">
-    <title>跳转中...</title>
-    <style>body{background:#121212;color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;height:100vh;font-family:sans-serif;}</style>
-    </head>
-    <body>
-        <h2>正在唤起 ${appName} 🚀</h2>
-        <p>如果未自动跳转，请点击下方按钮</p>
-        <br>
-        <a href="${finalUrl}" style="padding:12px 24px;background:#2481cc;color:#fff;text-decoration:none;border-radius:8px;">点击打开 ${appName}</a>
-        <script>window.location.href = "${finalUrl}";</script>
-    </body>
-    </html>`;
-
+    console.log(`🚀 正在将 ${url} 重定向到 ${finalUrl}`);
+    
     $done({
         response: {
-            status: 200,
-            headers: { "Content-Type": "text/html" },
-            body: html
+            status: 302, // 302 状态码：浏览器会立即执行跳转，不给官方 App 反应时间
+            headers: { "Location": finalUrl }
         }
     });
 } else {
