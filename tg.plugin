@@ -18,6 +18,6 @@ DOMAIN-SUFFIX, turrit.me, PROXY
 hostname = t.me
 
 [Script]
-# 脚本重命名为 "TG_Redirect"，看起来更正规
+# 脚本重命名为 "TG_Redirect"
 # 使用 http-request (比 response 更快，拦截更早)
 http-request ^https?:\/\/(www\.)?t\.me\/ script-path=https://cdn.jsdelivr.net/gh/RyderHee/LOON@main/tg.js, timeout=10, tag=TG_Redirect, argument="{app}"
