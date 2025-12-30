@@ -1,6 +1,7 @@
-#!name=TG Universal
-#!desc=多客户端跳转
+#!name=TG Redirect
+#!desc=Universal Telegram Redirect
 #!author=Roger
+#!icon=https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Telegram.png
 #!date=2025-12-30
 
 [Argument]
@@ -13,4 +14,4 @@ DOMAIN-SUFFIX, t.me, PROXY
 hostname = t.me
 
 [Script]
-http-request ^https?:\/\/(www\.)?t\.me\/ script-path=https://raw.githubusercontent.com/RyderHee/LOON/main/tg.js, timeout=10, tag=TGJump, argument="{App}"
+http-request ^https?:\/\/(www\.)?t\.me\/ script-path=https://raw.githubusercontent.com/RyderHee/LOON/main/tg.js, timeout=10, tag=TG_Jump, argument="{App}"
